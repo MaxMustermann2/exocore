@@ -129,8 +129,21 @@ func GetStakerUndelegationRecordKey(stakerID, assetID string, lzNonce uint64) []
 	return []byte(strings.Join([]string{stakerID, assetID, hexutil.EncodeUint64(lzNonce)}, "/"))
 }
 
-func GetPendingUndelegationRecordKey(height, lzNonce uint64) []byte {
-	return []byte(strings.Join([]string{hexutil.EncodeUint64(height), hexutil.EncodeUint64(lzNonce)}, "/"))
+// GetPendingUndelegationRecordKey returns the key for the pending undelegation record, indexed
+// by the height and lzNonce. A prefix + this is used to store a lookup to the actual recordKey.
+func GetPendingUndelegationRecordKey(height uint64, lzNonce uint64) []byte {
+	return append(
+		sdk.Uint64ToBigEndian(height),
+		sdk.Uint64ToBigEndian(lzNonce)...,
+	)
+}
+
+// ParsePendingUndelegationRecordKey takes a 16-byte key and returns the height and lzNonce
+func ParsePendingUndelegationRecordKey(key []byte) (height uint64, lzNonce uint64) {
+	if len(key) != 16 {
+		return 0, 0
+	}
+	return sdk.BigEndianToUint64(key[:8]), sdk.BigEndianToUint64(key[8:])
 }
 
 // GetUndelegationOnHoldKey returns the key for the undelegation hold count

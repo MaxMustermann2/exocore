@@ -35,21 +35,13 @@ func (k *Keeper) EndBlock(
 			record.BlockNumber, record.LzTxNonce, record.TxHash, record.OperatorAddr,
 		)
 		if k.GetUndelegationHoldCount(ctx, recordID) > 0 {
-			// delete from all 3 states
-			if err := k.DeleteUndelegationRecord(ctx, record); err != nil {
-				logger.Error("failed to delete undelegation record", "error", err)
-				continue
-			}
-			// add back to all 3 states, with the new block height
-			// #nosec G701
-			record.CompleteBlockNumber = uint64(ctx.BlockHeight()) + 1
-			if err := k.SetUndelegationRecords(
-				ctx, []types.UndelegationRecord{*record},
-			); err != nil {
-				logger.Error("failed to set undelegation records", "error", err)
-				continue
-			}
-			writeCache()
+			// since the undelegation record is still being held, we skip it
+			// we make no changes like changing the block number of this record's maturity,
+			// because the pending records are fetched such that record.Height <= currentHeight
+			logger.Info(
+				"undelegation record is still being held",
+				"recordID", recordID,
+			)
 			continue
 		}
 

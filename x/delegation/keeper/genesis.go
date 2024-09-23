@@ -66,7 +66,7 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *delegationtype.GenesisState {
 		panic(errorsmod.Wrap(err, "failed to get all staker list").Error())
 	}
 
-	res.Undelegations, err = k.AllUndelegations(ctx)
+	res.Undelegations, err = k.GetAllUndelegations(ctx)
 	if err != nil {
 		panic(errorsmod.Wrap(err, "failed to get all undelegations").Error())
 	}

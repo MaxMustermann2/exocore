@@ -20,7 +20,7 @@ import (
 func (k Keeper) ActivateScheduledChains(ctx sdk.Context, epochIdentifier string, epochNumber int64) {
 	executable := k.GetPendingSubChains(ctx, epochIdentifier, uint64(epochNumber))
 	for _, subscriber := range executable.List {
-		cctx, writeFn, err := k.CreateClientForSubscriberInCachedCtx(ctx, subscriber)
+		_, writeFn, err := k.CreateClientForSubscriberInCachedCtx(ctx, subscriber)
 		if err != nil {
 			k.Logger(ctx).Error(
 				"error creating client for subscriber",
@@ -38,8 +38,6 @@ func (k Keeper) ActivateScheduledChains(ctx sdk.Context, epochIdentifier string,
 			}
 			continue
 		}
-		// copy over the events from the cached ctx
-		ctx.EventManager().EmitEvents(cctx.EventManager().Events())
 		writeFn()
 		k.Logger(ctx).Info(
 			"subscriber chain started",
@@ -84,7 +82,7 @@ func (k Keeper) CreateClientForSubscriber(
 	// TODO(mm): Make this configurable for switchover use case
 	clientState.LatestHeight = clienttypes.Height{
 		RevisionNumber: clienttypes.ParseChainID(chainID), // IBC related
-		RevisionHeight: 1,
+		RevisionHeight: 1,                                 // TODO: different initial height not supported yet
 	}
 	subscriberUnbondingPeriod := subscriberParams.UnbondingPeriod
 	trustPeriod, err := commontypes.CalculateTrustPeriod(

@@ -76,6 +76,15 @@ func (k *Keeper) OptIn(
 	if err != nil {
 		return err
 	}
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeOptIn,
+			sdk.NewAttribute(types.AttributeKeyOperator, operatorAddress.String()),
+			sdk.NewAttribute(types.AttributeKeyAVSAddr, avsAddr),
+		),
+	)
+
 	return nil
 }
 

@@ -106,7 +106,7 @@ func (suite *KeeperTestSuite) prepare() {
 		AssetsAddress:   assetAddr.Bytes(),
 		OpAmount:        amount,
 	}
-	err = suite.App.AssetsKeeper.PerformDepositOrWithdraw(suite.Ctx, depositParams)
+	_, err = suite.App.AssetsKeeper.PerformDepositOrWithdraw(suite.Ctx, depositParams)
 	suite.NoError(err)
 	suite.CheckLengthOfValidatorUpdates(0, nil, "deposit but don't delegate")
 	// then delegate it
@@ -137,7 +137,7 @@ func (suite *KeeperTestSuite) prepare() {
 		AssetsAddress:   assetAddr.Bytes(),
 		OpAmount:        additionalAmount,
 	}
-	err = suite.App.AssetsKeeper.PerformDepositOrWithdraw(suite.Ctx, depositParams)
+	_, err = suite.App.AssetsKeeper.PerformDepositOrWithdraw(suite.Ctx, depositParams)
 	suite.NoError(err)
 	suite.CheckLengthOfValidatorUpdates(0, nil, "deposit above min but don't delegate")
 	delegationParams = &delegationtypes.DelegationOrUndelegationParams{

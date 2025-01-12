@@ -82,7 +82,7 @@ func (s *DelegationPrecompileSuite) TestRunDelegate() {
 			AssetsAddress:   usdtAddress,
 			OpAmount:        depositAmount,
 		}
-		err := s.App.AssetsKeeper.PerformDepositOrWithdraw(s.Ctx, params)
+		_, err := s.App.AssetsKeeper.PerformDepositOrWithdraw(s.Ctx, params)
 		s.Require().NoError(err)
 	}
 	registerOperator := func() {
@@ -308,7 +308,7 @@ func (s *DelegationPrecompileSuite) TestRunUnDelegate() {
 			AssetsAddress:   usdtAddress,
 			OpAmount:        depositAmount,
 		}
-		err := s.App.AssetsKeeper.PerformDepositOrWithdraw(s.Ctx, params)
+		_, err := s.App.AssetsKeeper.PerformDepositOrWithdraw(s.Ctx, params)
 		s.Require().NoError(err)
 	}
 

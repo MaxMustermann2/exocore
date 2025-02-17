@@ -126,6 +126,22 @@ message QueryAssociatedStakersByOperatorResponse {
   repeated string stakers = 1;
 }
 
+// QueryDelegatedStakersByOperatorReq is the request to obtain the delegated stakers of the specified operator
+message QueryDelegatedStakersByOperatorReq {
+  // operator is the operator address for which the query is made.
+  string operator = 1;
+  // asset_id is the asset id.
+  string asset_id = 2;
+}
+
+// QueryDelegatedStakersByOperatorResponse is the response to QueryDelegatedStakersByOperatorReq
+message QueryDelegatedStakersByOperatorResponse {
+  // count is the number of stakers
+  uint64 count = 1;
+  // stakers is the returned stakers associated to the specified operator
+  repeated string stakers = 2;
+}
+
 // Query is the service API for the delegation module.
 service Query {
   // DelegationInfo queries the delegation information for {stakerID, assetID}.

@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 
@@ -82,6 +84,9 @@ func (k *Keeper) OptIn(
 			types.EventTypeOptIn,
 			sdk.NewAttribute(types.AttributeKeyOperator, operatorAddress.String()),
 			sdk.NewAttribute(types.AttributeKeyAVSAddr, avsAddr),
+			sdk.NewAttribute(types.AttributeKeySlashContract, slashContract),
+			sdk.NewAttribute(types.AttributeKeyOptInHeight, fmt.Sprintf("%d", optedInfo.OptedInHeight)),
+			// do not emit the opt out height because the default value is used
 		),
 	)
 

@@ -75,6 +75,24 @@ func (k *Keeper) DeleteUndelegationRecord(ctx sdk.Context, record *types.Undeleg
 
 	pendingUndelegationKey := types.GetPendingUndelegationRecordKey(record.CompleteBlockNumber, record.LzTxNonce)
 	pendingUndelegationStore.Delete(pendingUndelegationKey)
+
+	store := ctx.KVStore(k.storeKey)
+	// delegate on-hold record for the undelegation
+	store.Delete(types.GetUndelegationOnHoldKey(singleRecKey))
+
+	// emit an event to track the undelegation record identifiers.
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeUndelegationMatured,
+			// the amount is the only thing that changes from the original record creation time
+			// technically we are tracking this number via slashing, but best to include it here
+			// as well.
+			sdk.NewAttribute(types.AttributeKeyAmount, record.ActualCompletedAmount.String()),
+			// everything else can be looked up from the original record identifier
+			sdk.NewAttribute(types.AttributeKeyRecordID, hexutil.Encode(record.GetKey())),
+		),
+	)
+
 	return nil
 }
 
@@ -226,6 +244,13 @@ func (k Keeper) IncrementUndelegationHoldCount(ctx sdk.Context, recordKey []byte
 	now := prev + 1
 	store := ctx.KVStore(k.storeKey)
 	store.Set(types.GetUndelegationOnHoldKey(recordKey), sdk.Uint64ToBigEndian(now))
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeUndelegationHoldCountChanged,
+			sdk.NewAttribute(types.AttributeKeyRecordID, hexutil.Encode(recordKey)),
+			sdk.NewAttribute(types.AttributeKeyHoldCount, fmt.Sprintf("%d", now)),
+		),
+	)
 	return nil
 }
 
@@ -245,5 +270,12 @@ func (k Keeper) DecrementUndelegationHoldCount(ctx sdk.Context, recordKey []byte
 	now := prev - 1
 	store := ctx.KVStore(k.storeKey)
 	store.Set(types.GetUndelegationOnHoldKey(recordKey), sdk.Uint64ToBigEndian(now))
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeUndelegationHoldCountChanged,
+			sdk.NewAttribute(types.AttributeKeyRecordID, hexutil.Encode(recordKey)),
+			sdk.NewAttribute(types.AttributeKeyHoldCount, fmt.Sprintf("%d", now)),
+		),
+	)
 	return nil
 }

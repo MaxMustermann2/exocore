@@ -13,20 +13,18 @@ import (
 func (k Keeper) BeginBlock(ctx sdk.Context) {
 	// for IBC, track historical validator set
 	k.TrackHistoricalInfo(ctx)
-	// check if event needs to be emitted
-	if k.ShouldEmitAvsEvent(ctx) {
-		defer k.ClearEmitAvsEventFlag(ctx)
-		// emit the event
-		chainIDWithoutRevision := avstypes.ChainIDWithoutRevision(ctx.ChainID())
-		_, avsAddress := k.avsKeeper.IsAVSByChainID(ctx, chainIDWithoutRevision)
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeDogfoodAvsCreated,
-				sdk.NewAttribute(types.AttributeKeyChainIDWithoutRev, chainIDWithoutRevision),
-				sdk.NewAttribute(types.AttributeKeyAvsAddress, avsAddress),
-			),
-		)
-	}
+	// emit the event at each block; the indexer will simply not do much
+	// if the values do not change.
+	// no stateful flag added here to retain backwards compatibility.
+	chainIDWithoutRevision := avstypes.ChainIDWithoutRevision(ctx.ChainID())
+	_, avsAddress := k.avsKeeper.IsAVSByChainID(ctx, chainIDWithoutRevision)
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeDogfoodAvsCreated,
+			sdk.NewAttribute(types.AttributeKeyChainIDWithoutRev, chainIDWithoutRevision),
+			sdk.NewAttribute(types.AttributeKeyAvsAddress, avsAddress),
+		),
+	)
 }
 
 func (k Keeper) EndBlock(ctx sdk.Context) []abci.ValidatorUpdate {

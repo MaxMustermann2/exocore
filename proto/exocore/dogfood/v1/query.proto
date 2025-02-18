@@ -101,17 +101,11 @@ message QueryUndelegationMaturityEpochResponse {
   int64 epoch = 1;
 }
 
-// QueryValidatorRequest is request type for the Query/Validator RPC method.
+// QueryValidatorRequest is request type for the Query/QueryValidator RPC method.
 message QueryValidatorRequest {
   // cons_addr is the consensus address of the validator being queried. From the perspective of
   // this module, the acc_addr is not relevant and is thus not stored.
   string cons_addr = 1;
-}
-
-// QueryValidatorResponse is response type for the Query/Validator RPC method.
-message QueryValidatorResponse {
-  // validator is the validator being queried.
-  ExocoreValidator validator = 1;
 }
 
 // QueryAllValidatorsRequest is request type for the Query/AllValidators RPC method.

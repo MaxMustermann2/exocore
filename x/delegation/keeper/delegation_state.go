@@ -75,6 +75,20 @@ func (k Keeper) IterateDelegationsForStaker(ctx sdk.Context, stakerID string, op
 	return k.IterateDelegations(ctx, []byte(stakerID), opFunc)
 }
 
+func (k Keeper) UndelegatableAmount(ctx sdk.Context, assetID, operator string, amounts *delegationtype.DelegationAmounts) (amount sdkmath.Int, err error) {
+	opAccAddr := sdk.MustAccAddressFromBech32(operator)
+	// get the asset state of operator
+	operatorAsset, err := k.assetsKeeper.GetOperatorSpecifiedAssetInfo(ctx, opAccAddr, assetID)
+	if err != nil {
+		return sdkmath.ZeroInt(), err
+	}
+	singleAmount, err := TokensFromShares(amounts.UndelegatableShare, operatorAsset.TotalShare, operatorAsset.TotalAmount)
+	if err != nil {
+		return sdkmath.ZeroInt(), err
+	}
+	return singleAmount, nil
+}
+
 // TotalDelegatedAmountForStakerAsset query the total delegation amount of the specified staker and asset.
 // It needs to be calculated from the share and amount of the asset pool.
 func (k Keeper) TotalDelegatedAmountForStakerAsset(ctx sdk.Context, stakerID string, assetID string) (amount sdkmath.Int, err error) {

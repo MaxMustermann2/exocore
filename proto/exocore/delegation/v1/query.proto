@@ -58,7 +58,8 @@ message QueryDelegationInfoResponse {
   map<string, DelegationAmounts> delegation_infos = 1;
 }
 
-// SingleDelegationInfoReq is the request to obtain the single delegation information.
+// SingleDelegationInfoReq is the request to obtain the single delegation information
+// and the maximum undelegatable amount of specific delegation.
 message SingleDelegationInfoReq {
   // staker_id is the staker id.
   string staker_id = 1 [(gogoproto.customname) = "StakerID"];
@@ -66,6 +67,18 @@ message SingleDelegationInfoReq {
   string operator_addr = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   // asset_id is the asset id.
   string asset_id = 3 [(gogoproto.customname) = "AssetID"];
+}
+
+// SingleDelegationInfoResponse is the response to QuerySingleDelegationInfo
+message SingleDelegationInfoResponse {
+  // delegation_amounts is the delegation info recorded in the KVStore
+  DelegationAmounts delegation_amounts = 1;
+  // max_undelegatable_amount is the maximum amount that can be undelegated
+  string max_undelegatable_amount = 2 [
+    (cosmos_proto.scalar) = "cosmos.Int",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // UndelegationHoldCountReq is the request to obtain the undelegation hold count.
@@ -133,9 +146,9 @@ service Query {
     option (cosmos.query.v1.module_query_safe) = true;
     option (google.api.http).get = "/exocore/delegation/v1/GetDelegationInfo";
   }
-  // SingleDelegationInfo queries the single delegation information for
-  // {chain, staker, asset, operator}.
-  rpc QuerySingleDelegationInfo(SingleDelegationInfoReq) returns (DelegationAmounts) {
+  // SingleDelegationInfo queries the single delegation information and the
+  // maximum undelegatable amount for {staker, asset, operator}.
+  rpc QuerySingleDelegationInfo(SingleDelegationInfoReq) returns (SingleDelegationInfoResponse) {
     option (cosmos.query.v1.module_query_safe) = true;
     option (google.api.http).get = "/exocore/delegation/v1/QuerySingleDelegationInfo";
   }

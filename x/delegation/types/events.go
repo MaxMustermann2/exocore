@@ -26,11 +26,10 @@ const (
 	// undelegation
 	EventTypeUndelegationStarted     = "undelegation_started"
 	AttributeKeyRecordID             = "record_id"
-	AttributeKeyCompletedEpochID     = "completed_epoch_id"
-	AttributeKeyCompletedEpochNumber = "completed_epoch_number"
 	AttributeKeyTxHash               = "tx_hash"
 	AttributeKeyBlockNumber          = "block_number"
 	AttributeKeyLzTxNonce            = "lz_tx_nonce"
+	AttributeKeyScheduledBlockNumber = "scheduled_block_number"
 
 	// undelegation matured
 	EventTypeUndelegationMatured          = "undelegation_matured"

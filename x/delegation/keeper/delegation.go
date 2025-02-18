@@ -177,6 +177,7 @@ func (k *Keeper) UndelegateFrom(ctx sdk.Context, params *delegationtype.Delegati
 			sdk.NewAttribute(delegationtype.AttributeKeyTxHash, r.TxHash),
 			sdk.NewAttribute(delegationtype.AttributeKeyBlockNumber, fmt.Sprintf("%d", r.BlockNumber)),
 			sdk.NewAttribute(delegationtype.AttributeKeyLzTxNonce, fmt.Sprintf("%d", r.LzTxNonce)),
+			sdk.NewAttribute(delegationtype.AttributeKeyScheduledBlockNumber, fmt.Sprintf("%d", r.CompleteBlockNumber)),
 		),
 	)
 

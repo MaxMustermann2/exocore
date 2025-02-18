@@ -24,20 +24,10 @@ import (
 func (k *Keeper) SetOperatorInfo(
 	ctx sdk.Context, addr string, info *operatortypes.OperatorInfo,
 ) (err error) {
-	if info == nil {
-		return errorsmod.Wrap(operatortypes.ErrParameterInvalid, "SetOperatorInfo: operator info is nil")
-	}
 	// #nosec G703 // already validated in `ValidateBasic`
 	opAccAddr, err := sdk.AccAddressFromBech32(addr)
 	if err != nil {
 		return errorsmod.Wrap(err, "SetOperatorInfo: error occurred when parse acc address from Bech32")
-	}
-	// already checked that addr is valid, so only check match below
-	if addr != info.EarningsAddr {
-		return errorsmod.Wrap(operatortypes.ErrParameterInvalid, "SetOperatorInfo: operator address does not match earnings address")
-	}
-	if addr != info.ApproveAddr {
-		return errorsmod.Wrap(operatortypes.ErrParameterInvalid, "SetOperatorInfo: operator address does not match approve address")
 	}
 	// if already registered, this request should go to EditOperator.
 	// TODO: EditOperator needs to be implemented.

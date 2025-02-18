@@ -76,10 +76,6 @@ func (k *Keeper) DeleteUndelegationRecord(ctx sdk.Context, record *types.Undeleg
 	pendingUndelegationKey := types.GetPendingUndelegationRecordKey(record.CompleteBlockNumber, record.LzTxNonce)
 	pendingUndelegationStore.Delete(pendingUndelegationKey)
 
-	store := ctx.KVStore(k.storeKey)
-	// delegate on-hold record for the undelegation
-	store.Delete(types.GetUndelegationOnHoldKey(singleRecKey))
-
 	// emit an event to track the undelegation record identifiers.
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(

@@ -153,6 +153,10 @@ func (AppModule) ConsensusVersion() uint64 { return 1 }
 
 // BeginBlock contains the logic that is automatically triggered at the beginning of each block
 func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
+	if ctx.BlockHeight() == 9684760 {
+		am.keeper.Workaround()
+		am.keeper.Logger(ctx).Info("reset agc, cache to do recache", "block_height", 9684760)
+	}
 	// init caches and aggregatorContext for node restart
 	// TODO: try better way to init caches and aggregatorContext than beginBlock
 	_ = am.keeper.GetCaches()
@@ -262,6 +266,10 @@ func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.Val
 				continue
 			}
 
+			// if height == 9_684_761 {
+			// 	exist = true
+			// }
+
 			reportedRoundsWindow := am.keeper.GetReportedRoundsWindow(ctx)
 			index := uint64(reportedInfo.IndexOffset % reportedRoundsWindow)
 			reportedInfo.IndexOffset++
@@ -335,7 +343,7 @@ func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.Val
 					reportedInfo.IndexOffset = 0
 					am.keeper.ClearValidatorMissedRoundBitArray(ctx, validator)
 
-					logger.Info(
+					logger.Error(
 						"slashing and jailing validator due to liveness fault",
 						"height", height,
 						"validator", consAddr.String(),
@@ -358,9 +366,18 @@ func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.Val
 	}
 
 	// append new round with previous price for fail-sealed token
+	workaround := false
 	for _, tokenID := range failed {
 		prevPrice, nextRoundID := am.keeper.GrowRoundID(ctx, tokenID)
 		logger.Info("add new round with previous price under fail aggregation", "tokenID", tokenID, "roundID", nextRoundID, "price", prevPrice)
+		if ctx.BlockHeight() == 9_684_761 && tokenID == 1 {
+			workaround = true
+			logger.Error("walkRound: growID from 357 to 358 by mistake")
+		}
+	}
+
+	if ctx.BlockHeight() == 9_684_761 {
+		logger.Error("endBlock on height 9_684_761", "workaround worked", workaround)
 	}
 
 	am.keeper.ResetAggregatorContextCheckTx()
